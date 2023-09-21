@@ -92,11 +92,13 @@ void uploadData() {
       if (myFile.openNext(&uploadDir, O_READ)) {
         Serial.print("\n Upload File ");
 //        myFile.printName(&Serial);
-        header hD;
-        memcpy(&hD,&myFile,sizeof(hD));
+        // header hD;
+        char fData[myFile.size()];
+        myFile.read(&fData, myFile.size());
+        memcpy(&hD, &fData, sizeof(hD));
         Serial.println(hD.rawtime);
         Serial.println(hD.esp_id);
-        if (mqttClient.publish(UPLOAD_TOPIC.c_str(),(char*)&myFile, myFile.size(), false, qos.toInt())) {
+        if (mqttClient.publish(UPLOAD_TOPIC.c_str(), &fData, myFile.size(), false, qos.toInt())) {
           printf("\tSucceed \n");
           myFile.getName(filename, sizeof(filename));
           if (uploadDir.remove(filename)) {
